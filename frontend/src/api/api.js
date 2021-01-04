@@ -9,6 +9,22 @@ export default {
     getBuses() {
         return AXIOS.get('/buses')
     },
+    getNearest(paramLat, paramLon) {
+        return AXIOS.get('/nearest', {
+            params: {
+                lat: paramLat,
+                lon: paramLon
+            }
+        })
+    },
+    getStopTimesForStop(paramId) {
+        console.log(paramId)
+        return AXIOS.get('/stoptimes', {
+            params: {
+                id: paramId
+            }
+        })
+    },
     getTrains() {
         return AXIOS.get('/trains')
     },

@@ -285,6 +285,87 @@ router.get('/traindata', (req, res) => {
     })
 })
 
+router.get('/nearest', (req, res) => {
+    let qq = `{
+        stopsByRadius(lat: ` + req.query.lat + `, lon: ` + req.query.lon + `, radius: 1500) {
+          edges {
+            node {
+              stop { 
+                gtfsId 
+                name
+                zoneId
+                vehicleMode
+                wheelchairBoarding
+                routes {
+                  shortName
+                }
+              }
+              distance
+            }
+          }
+        }
+      }}`
+	axios({
+        url: 'https://api.digitransit.fi/routing/v1/routers/waltti/index/graphql',
+        method: 'post',
+        data: {
+            "query": qq
+        },
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    }).then((result) => {
+        res.send(result.data.data.stopsByRadius.edges)
+    })
+    .catch(e => {
+    	res.status(500).send(e)
+    })
+})
+
+router.get('/stoptimes', (req, res) => {
+    let qq = `{
+        stop(id: "` + req.query.id + `") {
+            name
+            wheelchairBoarding
+            stoptimesWithoutPatterns(numberOfDepartures: 10) {
+              scheduledArrival
+              realtimeArrival
+              arrivalDelay
+              scheduledDeparture
+              realtimeDeparture
+              departureDelay
+              timepoint
+              realtime
+              realtimeState
+              pickupType
+              dropoffType
+              serviceDay
+              headsign
+              stopSequence
+              trip {
+                id
+                routeShortName
+              }
+            }
+          }
+    }`
+	axios({
+        url: 'https://api.digitransit.fi/routing/v1/routers/waltti/index/graphql',
+        method: 'post',
+        data: {
+            "query": qq
+        },
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    }).then((result) => {
+        res.send(result.data.data.stop.stoptimesWithoutPatterns)
+    })
+    .catch(e => {
+    	res.status(500).send(e)
+    })
+})
+
 router.get('/patternstops', (req, res) => {
     console.log("get patternstop")
     console.log(req.query.id)
